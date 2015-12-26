@@ -1,0 +1,34 @@
+﻿{
+    "id": "6c6538b0ae315d4d",
+    "url": "https://api.twitter.com/1.1/geo/id/6c6538b0ae315d4d.json",
+    "place_type": "city",
+    "name": "Rzeszów",
+    "full_name": "Rzeszów, Podkarpackie",
+    "country_code": "PL",
+    "country": "Polska",
+    "bounding_box": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            21.8832191,
+            49.988993
+          ],
+          [
+            21.8832191,
+            50.078395
+          ],
+          [
+            22.0941785,
+            50.078395
+          ],
+          [
+            22.0941785,
+            49.988993
+          ]
+        ]
+      ]
+    },
+    "attributes": {
+    }
+  }
