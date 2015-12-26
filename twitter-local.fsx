@@ -99,7 +99,6 @@ let ExtractImage (url:string) =
         )
         |> Seq.filter(fun j-> j.EndsWith("jpg") && (not <| j.Contains("profile_images")))
 
-    //imgs |> Seq.iter(printfn"%s")
     if Seq.length(imgs) > 0 then
         imgs 
         |> Seq.head
@@ -108,17 +107,7 @@ let ExtractImage (url:string) =
             let imageData = wc.DownloadData(im);
             use imgStream = new MemoryStream(imageData);
             let img = Image.FromStream(imgStream);
-            //printfn "%s W=%d H=%d" im img.Width img.Height
             Image2Ascii img
-
-let GetRequest (w:WebRequest) = 
-    w.Method <- WebRequestMethods.Http.Get
-    w.ContentType <- "application/x-www-form-urlencoded"
-
-let CreateStreamingRequest(url:string) = 
-    let w = WebRequest.Create(StreamBaseUrl + url) :?> HttpWebRequest
-    w.UserAgent <- "ixmx"
-    w
 
 let GetUnixEpochTimeStamp = 
     //test: "1318622958"
@@ -132,10 +121,7 @@ let GetNonce =
 let EncodeChar (c:char) = 
     let bytes = System.Text.Encoding.UTF8.GetBytes([|c|])
     bytes 
-        |> Seq.map(fun b -> 
-                //printfn "%c = %s" c (b.ToString())
-                "%" + b.ToString("X2")
-                ) 
+        |> Seq.map(fun b -> "%" + b.ToString("X2")) 
         |> System.String.Concat
 
 let PercentEncode (s:string) = 
@@ -219,7 +205,7 @@ let ReadStreamingResponse (w:WebRequest) =
     with
         | :? WebException as ex -> printfn "Error %O" ex;
 
-let GetStreamingWebResource (endpoint:string) (optional_params:System.Collections.Generic.SortedDictionary<string,string>) =
+let GetStreamingWebResource (endpoint:string) (optional_params:SortedDictionary<string,string>) =
     let url = StreamBaseUrl + endpoint
     let sig_base_string = WebRequestMethods.Http.Get + "&" + (PercentEncode url)
     let dict = optional_params
@@ -230,7 +216,9 @@ let GetStreamingWebResource (endpoint:string) (optional_params:System.Collection
                                                     (System.Net.WebUtility.UrlEncode kv.Value)) )
         |> Seq.fold(fun s1 s2-> s1 + s2 + "&") "?"
 
-    let w = CreateStreamingRequest (endpoint + query_string.TrimEnd(' ','&'))
+    let url = endpoint + query_string.TrimEnd(' ','&')
+    let w = WebRequest.Create(StreamBaseUrl + url) :?> HttpWebRequest
+    w.UserAgent <- "ixmx"
 
     let oauth = ComposeOAuthString dict sig_base_string
     w.Headers.Add("Authorization", "OAuth " + oauth)
